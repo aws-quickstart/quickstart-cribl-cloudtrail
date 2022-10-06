@@ -1,0 +1,46 @@
+Parameters:
+  TrailName:
+    Type: String
+  BucketName:
+    Type: String
+  cwlLogGroupARN:
+    Type: String
+  cwlRoleARN:
+    Type: String
+Conditions:
+  IsOrganizationsSupported:
+    Fn::Equals:
+      - { Ref: "AWS::Partition" }
+      - "aws"
+Resources:
+  Trail:
+    Type: AWS::CloudTrail::Trail
+    Properties:
+      S3BucketName: !Ref BucketName
+      IsLogging: true
+      TrailName: !Ref TrailName
+      EnableLogFileValidation: true
+      IncludeGlobalServiceEvents: true
+      IsMultiRegionTrail: true
+      CloudWatchLogsLogGroupArn: !Ref cwlLogGroupARN
+      CloudWatchLogsRoleArn: !Ref cwlRoleARN
+      EventSelectors:
+        - DataResources:
+            - Type: AWS::S3::Object
+              Values:
+                - !Sub "arn:${AWS::Partition}:s3"
+          IncludeManagementEvents: true
+          ReadWriteType: All
+Outputs:
+  ARN:
+    Description: The trail ARN
+    Value:
+      'Fn::GetAtt':
+        - Trail
+        - Arn
+  TopicArn:
+    Description: The SnS Topic ARN
+    Value:
+      'Fn::GetAtt':
+        - Trail
+        - SnsTopicArn
