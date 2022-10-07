@@ -10,8 +10,6 @@ Metadata:
         Parameters:
           - BucketName
           - TrailName
-          - cwlLogGroupARN
-          - cwlRoleARN
       - Label:
           default: Cribl Configuration
         Parameters:
@@ -39,10 +37,6 @@ Metadata:
         default: S3 Bucket for CloudTrail
       TrailName:
         default: Name for provisioned CloudTrail
-      cwlLogGroupARN:
-        default: CloudWatch Logs Log Group ARN
-      cwlRoleARN:
-        default: CloudWatch Logs Role ARN
       subnetIds:
         default: Subnet IDs inside the VPC
       vpcId:
@@ -69,22 +63,14 @@ Parameters:
   BucketName:
     Description: "REQUIRED: Enter the name of the bucket for storing CloudTrail"
     Type: String
-    Default:
+    Default: CloudTrail_Storage
   TrailName:
     Description: "REQUIRED: Enter a name for your CloudTrail"
     Type: String
-    Default: 
+    Default: DefaultCloudTrail
     AllowedPattern: ^[0-9a-zA-Z]+([0-9a-zA-Z-_\.]*[0-9a-zA-Z])*$
     ConstraintDescription: The Quick Start bucket name can include numbers, lowercase
       letters, uppercase letters, hyphens (-), underscores (_), or periods (.). It can only start or end with an alphanumeric.
-  cwlLogGroupARN:
-    Description: "Optional: Enter the ARN for your CloudWatch Log Group"
-    Type: String
-    Default: ''
-  cwlRoleARN:
-    Description: "Optional: Enter the ARN for the Cloudwatch Logs Role"
-    Type: String
-    Default: ''
   QSS3BucketName:
     AllowedPattern: ^[0-9a-zA-Z]+([0-9a-zA-Z-]*[0-9a-zA-Z])*$
     ConstraintDescription: The Quick Start bucket name can include numbers, lowercase
@@ -203,6 +189,22 @@ Conditions:
     - 'aws-quickstart'
 
 Resources:
+  S3Bucket:
+    Type: 'AWS::CloudFormation::Stack'
+    Properties:
+      TemplateURL: !Sub
+        - https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/aws-s3bucket.template.yaml
+        - S3Bucket: !If
+            - UsingDefaultBucket
+            - !Sub 'aws-quickstart-${AWS::Region}'
+            - !Ref 'QSS3BucketName'
+          S3Region: !If
+            - UsingDefaultBucket
+            - !Ref 'AWS::Region'
+            - !Ref 'QSS3BucketRegion'
+      Parameters:
+        BucketName: !Ref BucketName
+
   CloudTrail:
     Type: 'AWS::CloudFormation::Stack'
     Properties:
@@ -219,6 +221,7 @@ Resources:
       Parameters:
         TrailName: !Ref TrailName
         BucketName: !Ref BucketName
+
   CriblStack:
     Type: 'AWS::CloudFormation::Stack'
     Properties:
