@@ -11,6 +11,7 @@ tests:
   cribl-deploy-new-arm-main:
     parameters: 
       AvailabilityZones: $[taskcat_getaz_2]
+      
     template: templates/stream_arm64_with_ct_main.template.yaml
     regions:
       - us-east-1
@@ -43,12 +44,12 @@ tests:
   #   template: templates/free_arm64.template.yaml
   #   regions:
   #     - us-east-1
-  cribl-deploy-new-x86-main:
-    parameters: 
-      AvailabilityZones: $[taskcat_getaz_2]
-    template: templates/stream_x86_64_wit_ct_main.template.yaml
-    regions:
-      - us-east-1
+#  cribl-deploy-new-x86-main:
+#    parameters: 
+#      AvailabilityZones: $[taskcat_getaz_2]
+#    template: templates/stream_x86_64_with_ct_main.template.yaml
+#    regions:
+#      - us-east-1
   # cribl-deploy-new-vpc-x86:
   #   parameters: 
   #     AvailabilityZones: $[taskcat_getaz_2]
