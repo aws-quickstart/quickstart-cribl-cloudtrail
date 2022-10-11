@@ -93,9 +93,6 @@ Resources:
 
 
 Outputs:
-  S3BucketArn:
-    Value: !Ref BucketName
-    Description: ARN for the S3 Bucket used for storing CloudTrail.
   SQSArn:
     Value: !GetAtt SQSQueue.Arn
     Description: ARN for the SQS Queue (used for configuring the S3 input in Cribl Stream).

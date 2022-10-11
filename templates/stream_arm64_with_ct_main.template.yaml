@@ -78,7 +78,7 @@ Parameters:
   BucketName:
     Description: "REQUIRED: Enter the name of the bucket for storing CloudTrail"
     Type: String
-    Default: CloudTrail_Storage
+    Default: cribl-quickstart-cloudtrail-storage
   TrailName:
     Description: "REQUIRED: Enter a name for your CloudTrail"
     Type: String
@@ -241,7 +241,7 @@ Resources:
     Type: 'AWS::CloudFormation::Stack'
     Properties:
       TemplateURL: !Sub
-        - https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/aws-s3bucket.template.yaml
+        - https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/aws_s3bucket.template.yaml
         - S3Bucket: !If
             - UsingDefaultBucket
             - !Sub 'aws-quickstart-${AWS::Region}'
@@ -257,7 +257,7 @@ Resources:
     Type: 'AWS::CloudFormation::Stack'
     Properties:
       TemplateURL: !Sub
-        - https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/aws-cloudtrail.template.yaml
+        - https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/aws_cloudtrail.template.yaml
         - S3Bucket: !If
             - UsingDefaultBucket
             - !Sub 'aws-quickstart-${AWS::Region}'
@@ -269,6 +269,7 @@ Resources:
       Parameters:
         TrailName: !Ref TrailName
         BucketName: !Ref BucketName
+        BucketArn: !GetAtt S3Bucket.Outputs.S3BucketArn
 
   VPCStack:
     Type: 'AWS::CloudFormation::Stack'
@@ -323,9 +324,18 @@ Resources:
           - !Ref AdditionalPolicies
 
 Outputs:
-  logstreamWebUrlPublic:
+  StreamWebUrlPublic:
     Value: !GetAtt CriblStack.Outputs.logstreamWebUrlPublic
     Description: Cribl LogStream Web URL
-  logstreamWebAccessCreds:
+  StreamWebAccessCreds:
     Value: !GetAtt CriblStack.Outputs.logstreamWebAccessCreds
     Description: Default Web Access Credentials
+  S3SQSArn:
+    Value: !GetAtt S3Bucket.Outputs.SQSArn
+    Description: ARN for the SQS Queue (used for configuring the S3 input in Cribl Stream).
+  S3AccessRoleArn:
+    Value: !GetAtt S3Bucket.Outputs.AccessRoleArn
+    Description: ARN for the IAM Role to access the SQS queue and S3 bucket (used for configuring the S3 input in Cribl Stream).
+  S3BucketArn:
+    Value: !GetAtt S3Bucket.Outputs.S3BucketArn
+    Description: ARN for the S3 bucket used for storing CloudTrail data.

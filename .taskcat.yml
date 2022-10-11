@@ -1,5 +1,5 @@
 project:
-  name: quickstart-cribl-stream-privatelink-ami
+  name: quickstart-cribl-cloudtrail
   owner: quickstart-eng@amazon.com
   package_lambda: false
   regions:
@@ -8,26 +8,27 @@ project:
       QSS3BucketRegion: $[taskcat_current_region]
       QSS3BucketName: $[taskcat_autobucket]
 tests:
-  cribl-deploy-new-arm-main:
+  cribl-deploy-with-ct-main:
     parameters: 
-      AvailabilityZones: $[taskcat_getaz_2]
-      
+      AvailabilityZones: $[taskcat_getaz_2]      
     template: templates/stream_arm64_with_ct_main.template.yaml
     regions:
       - us-east-1
-  # cribl-deploy-new-vpc-arm:
-  #   parameters: 
-  #     AvailabilityZones: $[taskcat_getaz_2]
-  #     VPCCIDR: 10.0.0.0/16
-  #     PublicSubnet1CIDR: 10.0.128.0/20
-  #     PublicSubnet2CIDR: 10.0.144.0/20
-  #     PrivateSubnet1CIDR: 10.0.0.0/19
-  #     PrivateSubnet2CIDR: 10.0.32.0/19
-  #     VPCTenancy: default
-  #     QSS3BucketRegion: $[taskcat_current_region]
-  #   template: templates/free_arm64.template.yaml
-  #   regions:
-  #     - us-east-1
+#  build-aws-s3:
+#    parameters: 
+#      BucketName: cribl-quickstart-cloudtrail-storage
+#      QSS3BucketRegion: $[taskcat_current_region]
+#    template: templates/aws_s3bucket.template.yaml
+#    regions:
+#      - us-east-1
+#  build-aws-cloudtrail:
+#    parameters: 
+#      TrailName: default-cloudtrail
+#      BucketName: $[taskcat_autobucket]
+#      QSS3BucketRegion: $[taskcat_current_region]
+#    template: templates/aws_cloudtrail.template.yaml
+#    regions:
+#      - us-east-1
   # cribl-deploy-new-vpc-logging-arm:
   #   parameters: 
   #     AvailabilityZones: $[taskcat_getaz_2]
