@@ -87,9 +87,6 @@ Resources:
 
 
 Outputs:
-  S3BucketName:
-    Value: !Ref S3Bucket
-    Description: Bucket name
   S3BucketArn:
     Value: !GetAtt S3Bucket.Arn
     Description: ARN for the S3 Bucket used for storing CloudTrail.

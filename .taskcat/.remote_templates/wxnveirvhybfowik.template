@@ -1,4 +1,7 @@
 Parameters:
+  BucketName:
+    Description: S3 Bucket BucketName
+    Type: String
   RoleName:
     Description: Role Name (To access S3 and SQS)
     Type: String
@@ -6,7 +9,7 @@ Parameters:
   SQSName:
     Description: SQS Name
     Type: String
-    Default: s3-cloudtrail-notifications
+    Default: s3_notifications
 
 Resources:
   SQSQueue:
@@ -25,17 +28,19 @@ Resources:
             - 'SQS:SendMessage'
           Effect: Allow
           Resource: !GetAtt SQSQueue.Arn
-          Principal: 
-            Service: s3.amazonaws.com
+          Principal: '*'
           Condition:
-              StringEquals:
-                'aws:SourceAccount':
-                  - !Ref "AWS::AccountId"
+            ArnLike:
+              aws:SourceArn: !Join
+                - ''
+                - - 'arn:aws:s3:::'
+                  - !Ref BucketName
 
   S3Bucket:
     Type: 'AWS::S3::Bucket'
     Properties:
       AccessControl: Private
+      BucketName: !Ref BucketName
       NotificationConfiguration:
         QueueConfigurations:
           - Event: s3:ObjectCreated:*
@@ -79,19 +84,17 @@ Resources:
             Statement:
               - Effect: Allow
                 Action:
-                - 'S3:GetObject'
-                - 'S3:ListBucket'
-                - 'S3:GetBucketLocation'
-                - 'S3:PutObject'
+                 - 'S3:*' 
+#                - 'S3:GetObject'
+#                - 'S3:ListBucket'
+#                - 'S3:GetBucketLocation'
+#                - 'S3:PutObject'
                 Resource: !GetAtt S3Bucket.Arn
 
 
 Outputs:
-  S3BucketName:
-    Value: !Ref S3Bucket
-    Description: Bucket name
   S3BucketArn:
-    Value: !GetAtt S3Bucket.Arn
+    Value: !Ref BucketName
     Description: ARN for the S3 Bucket used for storing CloudTrail.
   SQSArn:
     Value: !GetAtt SQSQueue.Arn

@@ -1,4 +1,6 @@
 Parameters:
+  TrailName:
+    Type: String
   BucketName:
     Type: String
   BucketArn:
@@ -17,6 +19,7 @@ Resources:
     Properties:
       S3BucketName: !Ref BucketName
       IsLogging: true
+      TrailName: !Ref TrailName
       EnableLogFileValidation: true
       IncludeGlobalServiceEvents: true
       IsMultiRegionTrail: true

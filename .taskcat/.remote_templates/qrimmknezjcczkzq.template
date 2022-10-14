@@ -1,4 +1,6 @@
 Parameters:
+  TrailName:
+    Type: String
   BucketName:
     Type: String
   BucketArn:
@@ -17,6 +19,7 @@ Resources:
     Properties:
       S3BucketName: !Ref BucketName
       IsLogging: true
+      TrailName: !Ref TrailName
       EnableLogFileValidation: true
       IncludeGlobalServiceEvents: true
       IsMultiRegionTrail: true
@@ -41,12 +44,12 @@ Resources:
             Resource: !Ref BucketArn
             Principal: 
               Service: cloudtrail.amazonaws.com
-#            Condition:
-#              StringEquals:
-#                aws:SourceArn: !Join
-#                  - ''
-#                  - - 'arn:aws:cloudtrail:::trail/'
-#                    - !Ref TrailName
+            Condition:
+              StringEquals:
+                aws:SourceArn: !Join
+                  - ''
+                  - - 'arn:aws:cloudtrail:::trail/'
+                    - !Ref TrailName
           - Sid: AWSCloudTrailWrite
             Effect: Allow
             Principal:
@@ -59,7 +62,7 @@ Resources:
             Condition:
               StringEquals:
                 s3:x-amz-acl: bucket-owner-full-control
-#                aws:SourceArn: !Join
-#                  - ''
-#                  - - 'arn:aws:cloudtrail:::trail/'
-#                    - !Ref TrailName
+                aws:SourceArn: !Join
+                  - ''
+                  - - 'arn:aws:cloudtrail:::trail/'
+                    - !Ref TrailName

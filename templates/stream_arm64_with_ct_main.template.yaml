@@ -6,11 +6,6 @@ Metadata:
   AWS::CloudFormation::Interface:
     ParameterGroups:
       - Label:
-          default: CloudTrail Configuration
-        Parameters:
-          - BucketName
-          - TrailName
-      - Label:
           default: Cribl Configuration
         Parameters:
           - workerCount
@@ -38,10 +33,6 @@ Metadata:
           - QSS3KeyPrefix
           - QSS3BucketRegion
     ParameterLabels:
-      BucketName:
-        default: S3 Bucket for CloudTrail
-      TrailName:
-        default: Name for provisioned CloudTrail
       AvailabilityZones:
         default: Availability Zones
       PublicSubnet1CIDR:
@@ -75,17 +66,6 @@ Metadata:
 
 
 Parameters:
-  BucketName:
-    Description: "REQUIRED: Enter the name of the bucket for storing CloudTrail"
-    Type: String
-    Default: cribl-quickstart-cloudtrail-storage
-  TrailName:
-    Description: "REQUIRED: Enter a name for your CloudTrail"
-    Type: String
-    Default: DefaultCloudTrail
-    AllowedPattern: ^[0-9a-zA-Z]+([0-9a-zA-Z-_\.]*[0-9a-zA-Z])*$
-    ConstraintDescription: The Quick Start bucket name can include numbers, lowercase
-      letters, uppercase letters, hyphens (-), underscores (_), or periods (.). It can only start or end with an alphanumeric.
   AvailabilityZones:
     Description: List of Availability Zones to use for the subnets in the VPC.
     Type: 'List<AWS::EC2::AvailabilityZone::Name>'
@@ -250,8 +230,6 @@ Resources:
             - UsingDefaultBucket
             - !Ref 'AWS::Region'
             - !Ref 'QSS3BucketRegion'
-      Parameters:
-        BucketName: !Ref BucketName
 
   CloudTrail:
     Type: 'AWS::CloudFormation::Stack'
@@ -267,9 +245,8 @@ Resources:
             - !Ref 'AWS::Region'
             - !Ref 'QSS3BucketRegion'
       Parameters:
-        TrailName: !Ref TrailName
-        BucketName: !Ref BucketName
         BucketArn: !GetAtt S3Bucket.Outputs.S3BucketArn
+        BucketName: !GetAtt S3Bucket.Outputs.S3BucketName
 
   VPCStack:
     Type: 'AWS::CloudFormation::Stack'
@@ -299,8 +276,8 @@ Resources:
   CriblStack:
     Type: 'AWS::CloudFormation::Stack'
     Properties:
-      TemplateURL: !Sub
-        - https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/free_arm64.template.yaml
+      TemplateURL: !Sub 
+        - https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/aws-quickstart-cribl-logstream/templates/cribl-single-arm64.workload.template.yaml
         - S3Bucket: !If
             - UsingDefaultBucket
             - !Sub 'aws-quickstart-${AWS::Region}'
@@ -322,6 +299,23 @@ Resources:
         AdditionalPolicies: !Join
           - ','
           - !Ref AdditionalPolicies
+    
+  EmptyBucketLambda:
+    Type: 'AWS::CloudFormation::Stack'
+    Properties:
+      TemplateURL: !Sub
+        - https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/aws_lambda_emptybucket.template.yaml
+        - S3Bucket: !If
+            - UsingDefaultBucket
+            - !Sub 'aws-quickstart-${AWS::Region}'
+            - !Ref 'QSS3BucketName'
+          S3Region: !If
+            - UsingDefaultBucket
+            - !Ref 'AWS::Region'
+            - !Ref 'QSS3BucketRegion'
+      Parameters:
+        BucketArn2Empty: !GetAtt S3Bucket.Outputs.S3BucketArn
+        Bucket2Empty: !GetAtt S3Bucket.Outputs.S3BucketName
 
 Outputs:
   StreamWebUrlPublic:

@@ -1,6 +1,4 @@
 Parameters:
-  BucketName:
-    Type: String
   BucketArn:
     Type: String
 
@@ -15,7 +13,7 @@ Resources:
     Type: AWS::CloudTrail::Trail
     DependsOn: BucketPolicy
     Properties:
-      S3BucketName: !Ref BucketName
+      S3BucketName: !Ref BucketArn
       IsLogging: true
       EnableLogFileValidation: true
       IncludeGlobalServiceEvents: true
@@ -31,7 +29,7 @@ Resources:
   BucketPolicy:
     Type: AWS::S3::BucketPolicy
     Properties:
-      Bucket: !Ref BucketName
+      Bucket: !Ref BucketArn
       PolicyDocument:
         Version: 2012-10-17
         Statement:

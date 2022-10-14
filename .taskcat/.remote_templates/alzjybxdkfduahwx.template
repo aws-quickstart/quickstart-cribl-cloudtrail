@@ -87,7 +87,7 @@ Resources:
 
 
 Outputs:
-  S3BucketName:
+  s3BucketName:
     Value: !Ref S3Bucket
     Description: Bucket name
   S3BucketArn:

@@ -1,7 +1,7 @@
 Parameters:
-  BucketName:
-    Type: String
   BucketArn:
+    Type: String
+  BucketName:
     Type: String
 
 Conditions:
