@@ -3,9 +3,51 @@ Parameters:
     Type: String
   BucketArn2Empty:
     Type: String
+  QSS3BucketName:
+    AllowedPattern: ^[0-9a-zA-Z]+([0-9a-zA-Z-]*[0-9a-zA-Z])*$
+    ConstraintDescription: The Quick Start bucket name can include numbers, lowercase
+      letters, uppercase letters, and hyphens (-). It cannot start or end with a
+      hyphen (-).
+    Default: aws-quickstart
+    Description: Name of the S3 bucket for your copy of the Quick Start assets.
+      Keep the default name unless you are customizing the template.
+      Changing the name updates code references to point to a new Quick
+      Start location. This name can include numbers, lowercase letters,
+      uppercase letters, and hyphens, but do not start or end with a hyphen (-).
+      See https://aws-quickstart.github.io/option1.html.
+    Type: String
+  QSS3KeyPrefix:
+    AllowedPattern: ^([0-9a-zA-Z-.]+/)*$
+    ConstraintDescription: The Quick Start S3 key prefix can include numbers, lowercase letters,
+      uppercase letters, hyphens (-), and forward slashes (/).
+    Default: quickstart-cribl-cloudtrail/
+    Description: S3 key prefix that is used to simulate a directory for your copy of the
+      Quick Start assets. Keep the default prefix unless you are customizing
+      the template. Changing this prefix updates code references to point to
+      a new Quick Start location. This prefix can include numbers, lowercase
+      letters, uppercase letters, hyphens (-), and forward slashes (/). End with a forward slash.
+      See https://docs.aws.amazon.com/AmazonS3/latest/dev/UsingMetadata.html
+      and https://aws-quickstart.github.io/option1.html.
+    Type: String
+  QSS3BucketRegion:
+    Default: 'us-east-1'
+    Description: 'AWS Region where the Quick Start S3 bucket (QSS3BucketName) is
+    hosted. Keep the default Region unless you are customizing the template.
+    Changing this Region updates code references to point to a new Quick Start location.
+    When using your own bucket, specify the Region.
+    See https://aws-quickstart.github.io/option1.html.'
+    Type: String
+
+Conditions:
+  UsingDefaultBucket: !Equals
+    - !Ref QSS3BucketName
+    - 'aws-quickstart'
 
 Resources:
-  LambdaExecute:
+  LambdaSourceBucket:
+    Type: AWS::S3::Bucket
+
+  CopyZipsRole:
     Type: AWS::IAM::Role
     Properties:
       AssumeRolePolicyDocument:
@@ -23,11 +65,32 @@ Resources:
             Version: '2012-10-17'
             Statement:
               - Effect: Allow
-                Action: 
-                  - s3:GetObject
+                Action: s3:GetObject
+                Resource: !Sub 'arn:${AWS::Partition}:s3:::${QSS3BucketName}/${QSS3KeyPrefix}*'
+              - Effect: Allow
+                Action:
                   - s3:PutObject
                   - s3:DeleteObject
-                Resource: '*'
+                Resource: !Sub 'arn:${AWS::Partition}:s3:::${LambdaSourceBucket}/${QSS3KeyPrefix}*'
+
+  CopyZipsStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub
+        - https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}submodules/lambda-copyzips/templates/copy-zips.template.yaml
+        - S3Region:
+            !If [UsingDefaultBucket, !Ref "AWS::Region", !Ref QSS3BucketRegion]
+          S3Bucket:
+            !If [
+              UsingDefaultBucket,
+              !Sub "${QSS3BucketName}-${AWS::Region}",
+              !Ref QSS3BucketName,
+            ]
+      Parameters:
+        DestinationBucket: !Ref LambdaSourceBucket
+        QSS3BucketName: !Ref "QSS3BucketName"
+        QSS3KeyPrefix: !Ref "QSS3KeyPrefix"
+        SourceObjects: "functions/DeleteBucketContents.zip"
 
   LambdaRole:
     Type: AWS::IAM::Role
@@ -66,7 +129,7 @@ Resources:
         Description: Generates a random string for resource names
         Handler: index.handler
         Runtime: python3.7
-        Role: !GetAtt LambdaExecute.Arn
+        Role: !GetAtt CopyZipsRole.Arn
         Timeout: 900
         Code:
           ZipFile: |
@@ -102,33 +165,8 @@ Resources:
     Type: AWS::Lambda::Function
     Properties:
       Code:
-        ZipFile: |
-          import json, boto3, logging
-          import cfnresponse
-          logger = logging.getLogger()
-          logger.setLevel(logging.INFO)
-          def lambda_handler(event, context):
-              logger.info("event: {}".format(event))
-              try:
-                  bucket = event['ResourceProperties']['BucketName']
-                  logger.info("bucket: {}, event['RequestType']: {}".format(bucket,event['RequestType']))
-                  if event['RequestType'] == 'Delete':
-                      s3 = boto3.resource('s3')
-                      bucket = s3.Bucket(bucket)
-                      for obj in bucket.objects.filter():
-                          logger.info("delete obj: {}".format(obj))
-                          s3.Object(bucket.name, obj.key).delete()
-
-                  sendResponseCfn(event, context, cfnresponse.SUCCESS)
-              except Exception as e:
-                  logger.info("Exception: {}".format(e))
-                  sendResponseCfn(event, context, cfnresponse.FAILED)
-
-          def sendResponseCfn(event, context, responseStatus):
-              responseData = {}
-              responseData['Data'] = {}
-              cfnresponse.send(event, context, responseStatus, responseData, "CustomResourcePhysicalID")   
-
+        S3Bucket: !Ref LambdaSourceBucket
+        S3Key: DeleteBucketContents.zip
       Environment:
         Variables:
           BucketName: !Ref Bucket2Empty
@@ -141,9 +179,3 @@ Resources:
       PackageType: Zip
       Runtime: python3.7
       Role: !GetAtt LambdaRole.Arn
-
-  cleanupBucketOnDelete:
-    Type: Custom::cleanupbucket
-    Properties:
-      ServiceToken: !GetAtt LambdaEmptyBucket.Arn
-      BucketName: !Ref Bucket2Empty
