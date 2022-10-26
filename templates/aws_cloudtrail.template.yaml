@@ -4,12 +4,6 @@ Parameters:
   BucketArn:
     Type: String
 
-Conditions:
-  IsOrganizationsSupported:
-    Fn::Equals:
-      - { Ref: "AWS::Partition" }
-      - "aws"
-
 Resources:
   Trail:
     Type: AWS::CloudTrail::Trail
@@ -41,12 +35,6 @@ Resources:
             Resource: !Ref BucketArn
             Principal: 
               Service: cloudtrail.amazonaws.com
-#            Condition:
-#              StringEquals:
-#                aws:SourceArn: !Join
-#                  - ''
-#                  - - 'arn:aws:cloudtrail:::trail/'
-#                    - !Ref TrailName
           - Sid: AWSCloudTrailWrite
             Effect: Allow
             Principal:
@@ -59,7 +47,3 @@ Resources:
             Condition:
               StringEquals:
                 s3:x-amz-acl: bucket-owner-full-control
-#                aws:SourceArn: !Join
-#                  - ''
-#                  - - 'arn:aws:cloudtrail:::trail/'
-#                    - !Ref TrailName
