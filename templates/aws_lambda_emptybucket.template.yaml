@@ -1,3 +1,6 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Lambda template to delete the contents of any bucket provided (qs-1ti2q47qb)
+
 Parameters:
   Bucket2Empty:
     Type: String
