@@ -5,78 +5,19 @@ project:
   regions:
     - us-east-1
   parameters: 
-      QSS3BucketRegion: $[taskcat_current_region]
-      QSS3BucketName: $[taskcat_autobucket]
+      QSS3BucketName: "$[taskcat_autobucket]"
+      QSS3BucketRegion: "$[taskcat_current_region]"
+      webAccessCidr: 0.0.0.0/0
 tests:
-  cribl-deploy-with-ct-main:
+  cribl-deploy-arm64-ct-main:
     parameters: 
       AvailabilityZones: $[taskcat_getaz_2]      
     template: templates/stream_arm64_with_ct_main.template.yaml
     regions:
-      - us-east-1
-#  build-aws-s3:
-#    parameters: 
-#      BucketName: cribl-quickstart-cloudtrail-storage
-#      QSS3BucketRegion: $[taskcat_current_region]
-#    template: templates/aws_s3bucket.template.yaml
-#    regions:
-#      - us-east-1
-#  build-aws-cloudtrail:
-#    parameters: 
-#      TrailName: default-cloudtrail
-#      BucketName: $[taskcat_autobucket]
-#      QSS3BucketRegion: $[taskcat_current_region]
-#    template: templates/aws_cloudtrail.template.yaml
-#    regions:
-#      - us-east-1
-  # cribl-deploy-new-vpc-logging-arm:
-  #   parameters: 
-  #     AvailabilityZones: $[taskcat_getaz_2]
-  #     VPCCIDR: 10.0.0.0/16
-  #     PublicSubnet1CIDR: 10.0.128.0/20
-  #     PublicSubnet2CIDR: 10.0.144.0/20
-  #     PrivateSubnet1CIDR: 10.0.0.0/19
-  #     PrivateSubnet2CIDR: 10.0.32.0/19
-  #     VPCTenancy: default
-  #     QSS3BucketRegion: $[taskcat_current_region]
-  #     LogFilePrefix: cribl-vpc-logs
-  #     TrafficType: ALL
-  #     SQS: cribl-sqs-vpc-logs-arm
-  #   template: templates/free_arm64.template.yaml
-  #   regions:
-  #     - us-east-1
-#  cribl-deploy-new-x86-main:
-#    parameters: 
-#      AvailabilityZones: $[taskcat_getaz_2]
-#    template: templates/stream_x86_64_with_ct_main.template.yaml
-#    regions:
-#      - us-east-1
-  # cribl-deploy-new-vpc-x86:
-  #   parameters: 
-  #     AvailabilityZones: $[taskcat_getaz_2]
-  #     VPCCIDR: 10.0.0.0/16
-  #     PublicSubnet1CIDR: 10.0.128.0/20
-  #     PublicSubnet2CIDR: 10.0.144.0/20
-  #     PrivateSubnet1CIDR: 10.0.0.0/19
-  #     PrivateSubnet2CIDR: 10.0.32.0/19
-  #     VPCTenancy: default
-  #     QSS3BucketRegion: $[taskcat_current_region]
-  #   template: templates/free_x86_64.template.yaml
-  #   regions:
-  #     - us-east-1
-  # cribl-deploy-new-vpc-logging-x86:
-  #   parameters: 
-  #     AvailabilityZones: $[taskcat_getaz_2]
-  #     VPCCIDR: 10.0.0.0/16
-  #     PublicSubnet1CIDR: 10.0.128.0/20
-  #     PublicSubnet2CIDR: 10.0.144.0/20
-  #     PrivateSubnet1CIDR: 10.0.0.0/19
-  #     PrivateSubnet2CIDR: 10.0.32.0/19
-  #     VPCTenancy: default
-  #     QSS3BucketRegion: $[taskcat_current_region]
-  #     LogFilePrefix: cribl-vpc-logs
-  #     TrafficType: ALL
-  #     SQS: cribl-sqs-vpc-logs-x86
-  #   template: templates/free_x86_64.template.yaml
-  #   regions:
-  #     - us-east-1
+      - us-west-2
+  cribl-deploy-x86-with-ct:
+    parameters: 
+      AvailabilityZones: $[taskcat_getaz_2]
+    template: templates/stream_x86_with_ct_main.template.yaml
+    regions:
+      - us-east-2

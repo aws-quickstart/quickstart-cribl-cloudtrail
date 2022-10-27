@@ -1,10 +1,14 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Transform: "AWS::Serverless-2016-10-31"
-Description: Cribl LogStream Free Deployment (arm64)
+Description: Cribl Stream Free Deployment on ARM64 with cloudtrail logging (qs-1ti330r8b)
 
 Metadata:
   AWS::CloudFormation::Interface:
     ParameterGroups:
+      - Label:
+          default: CloudTrail Configuration
+        Parameters:
+          - ExternalLogBucket
       - Label:
           default: Cribl Configuration
         Parameters:
@@ -48,9 +52,11 @@ Metadata:
       QSS3BucketRegion:
         default: Quick Start S3 bucket region
       webAccessCidr:
-        default: web access cidr for cribl stream leader
+        default: Web access cidr for cribl stream leader
       instanceType:
-        default: ec2 instance type for cribl stream leader
+        default: EC2 instance type for cribl stream leader
+      ExternalLogBucket:
+        default: Already created s3 bucket for storing CloudTrail logs
 
 
 Parameters:
@@ -156,6 +162,12 @@ Parameters:
       - m6gd.2xlarge
       - m6gd.4xlarge
     ConstraintDescription: Must contain valid instance type
+  ExternalLogBucket:
+    Description: >-
+      (Optional) The name of an S3 bucket where you want to store flow logs. If
+      you leave this blank, an Amazon S3 bucket is created for you.
+    Type: String
+    Default: ''
 
   
 
@@ -170,12 +182,16 @@ Rules:
         AssertDescription: All subnets must in the VPC
 
 Conditions:
+  InternalBucket: !Equals 
+    - !Ref ExternalLogBucket
+    - ''
   UsingDefaultBucket: !Equals
     - !Ref QSS3BucketName
     - 'aws-quickstart'
 
 Resources:
   S3Bucket:
+    Condition: InternalBucket
     Type: 'AWS::CloudFormation::Stack'
     Properties:
       TemplateURL: !Sub
@@ -203,8 +219,17 @@ Resources:
             - !Ref 'AWS::Region'
             - !Ref 'QSS3BucketRegion'
       Parameters:
-        BucketArn: !GetAtt S3Bucket.Outputs.S3BucketArn
-        BucketName: !GetAtt S3Bucket.Outputs.S3BucketName
+        BucketArn: !If 
+          - InternalBucket
+          - !GetAtt S3Bucket.Outputs.S3BucketArn
+          - !Join
+              - ''
+              - - 'arn:aws:s3:::'
+                - !Ref ExternalLogBucket
+        BucketName: !If 
+          - InternalBucket
+          - !GetAtt S3Bucket.Outputs.S3BucketName
+          - !Ref ExternalLogBucket
 
   VPCStack:
     Type: 'AWS::CloudFormation::Stack'
@@ -234,7 +259,10 @@ Resources:
   CriblStack:
     Type: 'AWS::CloudFormation::Stack'
     Properties:
-      TemplateURL: https://aws-quickstart.s3.us-east-1.amazonaws.com/aws-quickstart-cribl-logstream/templates/cribl-single-arm64.workload.template.yaml
+      TemplateURL: !Sub 
+        - https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/quickstart-cribl-logstream/templates/cribl-single-arm64.workload.template.yaml
+        - S3Bucket: aws-quickstart
+          S3Region: us-east-1
       Parameters:
         instanceType: !Ref instanceType
         webAccessCidr: !Ref webAccessCidr
@@ -245,6 +273,7 @@ Resources:
             - !GetAtt VPCStack.Outputs.PublicSubnet2ID
     
   EmptyBucketLambda:
+    Condition: InternalBucket
     Type: 'AWS::CloudFormation::Stack'
     Properties:
       TemplateURL: !Sub
@@ -271,9 +300,12 @@ Outputs:
   S3SQSArn:
     Value: !GetAtt S3Bucket.Outputs.SQSArn
     Description: ARN for the SQS Queue (used for configuring the S3 input in Cribl Stream).
+    Condition: InternalBucket
   S3AccessRoleArn:
     Value: !GetAtt S3Bucket.Outputs.AccessRoleArn
     Description: ARN for the IAM Role to access the SQS queue and S3 bucket (used for configuring the S3 input in Cribl Stream).
+    Condition: InternalBucket
   S3BucketArn:
     Value: !GetAtt S3Bucket.Outputs.S3BucketArn
     Description: ARN for the S3 bucket used for storing CloudTrail data.
+    Condition: InternalBucket
