@@ -6,16 +6,14 @@ Parameters:
     Description: Role Name (To access S3 and SQS)
     Type: String
     Default: sqs_s3_full_access
-  SQSName:
-    Description: SQS Name
-    Type: String
-    Default: s3-cloudtrail-notifications
+  # SQSName:
+  #   Description: SQS Name
+  #   Type: String
+  #   Default: s3-cloudtrail-notifications
 
 Resources:
   SQSQueue:
     Type: AWS::SQS::Queue
-    Properties: 
-      QueueName: !Ref SQSName
 
   SQSAccessPolicy: 
     Type: AWS::SQS::QueuePolicy
