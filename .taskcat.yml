@@ -1,0 +1,23 @@
+project:
+  name: quickstart-cribl-cloudtrail
+  owner: quickstart-eng@amazon.com
+  package_lambda: false
+  regions:
+    - us-east-1
+  parameters: 
+      QSS3BucketName: "$[taskcat_autobucket]"
+      QSS3BucketRegion: "$[taskcat_current_region]"
+      webAccessCidr: 0.0.0.0/0
+tests:
+  cribl-deploy-arm64-ct-main:
+    parameters: 
+      AvailabilityZones: $[taskcat_getaz_2]      
+    template: templates/stream_arm64_with_ct_main.template.yaml
+    regions:
+      - us-west-2
+  cribl-deploy-x86-with-ct:
+    parameters: 
+      AvailabilityZones: $[taskcat_getaz_2]
+    template: templates/stream_x86_with_ct_main.template.yaml
+    regions:
+      - us-east-2
