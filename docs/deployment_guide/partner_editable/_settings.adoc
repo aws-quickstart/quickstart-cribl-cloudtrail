@@ -1,13 +1,12 @@
-:quickstart-project-name: quickstart-cribl-cloudtrail
+:quickstart-project-name: quickstart-cribl-logstream
 :quickstart-github-org: aws-quickstart
-:partner-product-name: Cribl Stream CloudTrail
-:partner-product-short-name: Cribl CloudTrail
+:partner-product-name: Cribl Stream
+:partner-product-short-name: Stream
 :partner-company-name: Cribl
-:doc-month: July
+:doc-month: May
 :doc-year: 2022
 :partner-contributors: Kam Amir, Cribl
-// :other-contributors: Akua Mansa, Trek10
-:aws-contributors: Janine Singh, AWS IoT Partner team
+//:other-contributors: Akua Mansa, Trek10
 :aws-ia-contributors: Tony Bulding, AWS Integration & Automation team
 :deployment_time: 15 minutes
 :default_deployment_region: us-east-1
