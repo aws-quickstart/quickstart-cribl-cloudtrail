@@ -1,6 +1,6 @@
 :partner-solution-project-name: quickstart-cribl-cloudtrail
 :partner-solution-github-org: aws-quickstart
-:partner-product-name: Cribl Stream
+:partner-product-name: Cribl Stream with AWS CloudTrail
 :partner-product-short-name: Stream
 :partner-company-name: Cribl
 :doc-month: February

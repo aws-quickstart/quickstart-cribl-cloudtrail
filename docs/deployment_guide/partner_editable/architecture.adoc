@@ -7,7 +7,7 @@ AWS Cloud.
 // Replace this example diagram with your own. Follow our wiki guidelines: https://w.amazon.com/bin/view/AWS_Quick_Starts/Process_for_PSAs/#HPrepareyourarchitecturediagram. Upload your source PowerPoint file to the GitHub {deployment name}/docs/images/ directory in this repo.
 
 [#architecture1]
-.Quick Start architecture for {partner-product-short-name} on AWS
+.Quick Start architecture for {partner-product-name} on AWS
 image::../docs/deployment_guide/images/architecture_diagram.png[Architecture]
 
 As shown in <<architecture1>>, the Quick Start sets up the following:
@@ -23,4 +23,4 @@ As shown in <<architecture1>>, the Quick Start sets up the following:
 ** Lambda function and CloudTrail access to the CloudTrail data S3 bucket.
 ** Cribl Stream instances access to the Cribl Stream test data S3 bucket. You can edit the Cribl Stream IAM policy after deployment to add other Cribl-supported data sources and destinations.
 
-* By default, to give users a better experience when getting started with Cribl Stream, this Quick Start deploys in a public subnet. If you're deploying this Quick Start in a production environment, consider using a private subnet.
+[.small]#* By default, to give users a better experience when getting started with Cribl Stream, this Partner Solution deploys in a public subnet. If you're deploying this Partner Solution to a production environment, consider using a private subnet.#
