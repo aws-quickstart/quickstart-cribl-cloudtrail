@@ -15,7 +15,7 @@ As shown in <<architecture1>>, the Quick Start sets up the following:
 * A highly available architecture that spans two Availability Zones in your virtual private cloud (VPC).
 * An Application Load Balancer to route Cribl Stream user traffic to Cribl Stream instances in the public subnets.
 * In the public subnets, Cribl Stream deployed to Amazon Elastic Compute Cloud (Amazon EC2) instances in an Auto Scaling group.*
-* Amazon S3 for two buckets: one for Cribl Stream test data and another for AWS CloudTrail logs.
+* Amazon S3 for two buckets: one for Cribl Stream test data and another for CloudTrail logs.
 * CloudTrail to log API calls to Cribl instances to an S3 bucket and send logging notifications to Amazon Simple Queue Service (Amazon SQS).
 * Amazon SQS to notify subscribers when logs are written to the CloudTrail S3 bucket.
 * An AWS Lambda function to empty the CloudTrail data S3 bucket upon stack deletion.
