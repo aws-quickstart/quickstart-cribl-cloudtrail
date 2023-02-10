@@ -4,4 +4,4 @@ This Quick Start requires a subscription to https://aws.amazon.com/marketplace/p
 
 There are no additional licenses required to use this Quick Start.
 
-There is no cost to use this Quick Start, however you will be billed for the resources deployed. For more information see the http://general-content-file[AWS Quick Start General Content Guide].
+There is no cost to use this Quick Start, however you will be billed for the resources deployed. For more information refer to https://fwd.aws/rA69w?[AWS Quick Start General Information Guide].

@@ -19,7 +19,7 @@ As shown in <<architecture1>>, the Quick Start sets up the following:
 * CloudTrail to log API calls to Cribl instances to an S3 bucket and send logging notifications to Amazon Simple Queue Service (Amazon SQS).
 * Amazon SQS to notify subscribers when logs are written to the CloudTrail S3 bucket.
 * An AWS Lambda function to empty the CloudTrail data S3 bucket upon stack deletion.
-* AWS Identity and Access Management (IAM) for roles and policies providing the following:
+* AWS Identity and Access Management (IAM) to provide the following:
 ** Lambda function and CloudTrail access to the CloudTrail data S3 bucket.
 ** Cribl Stream instances access to the Cribl Stream test data S3 bucket. You can edit the Cribl Stream IAM policy after deployment to add other Cribl-supported data sources and destinations.
 
